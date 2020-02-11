@@ -4,7 +4,6 @@ import ModalContainer from "./components/Modal";
 import styled from "styled-components";
 import axios from "axios";
 import "./App.css";
-import Loader from "react-loader-spinner";
 
 const Wrapper = styled.div`
   width: 100%;
@@ -14,32 +13,28 @@ const Wrapper = styled.div`
 
 function App() {
   const [nasa, setNasa] = useState([]);
+  const [error, setError] = useState("");
+  const [url, setUrl] = useState(
+    "https://api.nasa.gov/planetary/apod?api_key=L6Fjl7gZtReyMZa0M3XLLvKHoXcy9ZF5cWW0t4Jc"
+  );
 
   useEffect(() => {
     axios
-      .get(
-        "https://api.nasa.gov/planetary/apod?api_key=L6Fjl7gZtReyMZa0M3XLLvKHoXcy9ZF5cWW0t4Jc"
-      )
+      .get(url)
       .then(res => {
         setNasa(res.data);
       })
       .catch(err => {
-        console.log(err);
+        setError("Sorry not data for the date you picked! Try different date");
       });
-  }, []);
+  }, [url]);
 
   const onChange = e => {
     var date = e.target.value;
-    axios
-      .get(
-        `https://api.nasa.gov/planetary/apod?date=${date}&api_key=L6Fjl7gZtReyMZa0M3XLLvKHoXcy9ZF5cWW0t4Jc`
-      )
-      .then(res => {
-        setNasa(res.data);
-      })
-      .catch(err => {
-        alert("sorry, no data available that date");
-      });
+    setUrl(
+      `https://api.nasa.gov/planetary/apod?date=${date}&api_key=L6Fjl7gZtReyMZa0M3XLLvKHoXcy9ZF5cWW0t4Jc`
+    );
+    setError("");
   };
   console.log(nasa);
   return (
@@ -70,8 +65,12 @@ function App() {
           onChange={onChange}
         />
       </div>
-
-      <ImageContainer data={nasa} />
+      {error && (
+        <p style={{ textAlign: "center", fontSize: "1.rem", color: "red" }}>
+          {error}
+        </p>
+      )}
+      {!error ? <ImageContainer data={nasa} /> : ""}
     </Wrapper>
   );
 }
